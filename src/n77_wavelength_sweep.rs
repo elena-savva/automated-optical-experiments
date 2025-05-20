@@ -67,18 +67,6 @@ pub fn run_wavelength_sweep(
         
         // Wait for stabilization
         thread::sleep(Duration::from_millis(stabilization_time_ms));
-
-        // Measure wavelength
-        power_meter.write_all(b"WAV?\n").map_err(io_to_vs_err)?;
-        
-        let mut wav_response = String::new();
-        {
-            let mut reader = BufReader::new(&*power_meter);
-            reader.read_line(&mut wav_response).map_err(io_to_vs_err)?;
-        }
-        let wavelength_meas = wav_response;
-        // Print measured values
-        println!("Measured wavelength: {:.7} nm", wavelength_meas);
         
         // Measure power
         power_meter.write_all(b"READ? 0\n").map_err(io_to_vs_err)?;
@@ -110,7 +98,7 @@ pub fn run_wavelength_sweep(
         println!("  Power: {:.3} dBm", power);
         
         // Write to results file
-        writeln!(file, "{:.3},{:.6}", wavelength_meas, power).map_err(io_to_vs_err)?;
+        writeln!(file, "{:.3},{:.6}", wavelength, power).map_err(io_to_vs_err)?;
     }
     
     // Turn laser OFF
