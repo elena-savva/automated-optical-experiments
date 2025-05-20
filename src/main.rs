@@ -111,18 +111,18 @@ fn main() -> visa_rs::Result<()> {
     let start_ma = 0.0;     // Start at 0 mA
     let stop_ma = 100.0;    // End at 100 mA
     let step_ma = 0.1;      // 1 mA steps
-    let dwell_time_ms = 50; // 100ms stabilization delay
+    let dwell_time_ms = 100; // 100ms stabilization delay
 
     // Configure the wavelength sweep
-    let start_nm = 1528.00;        // minimum 1527.60 nm
+    let start_nm = 1530.00;        // minimum 1527.60 nm
     let stop_nm = 1570.00;         // maximum 1570.01 nm
-    let step_nm = 1.0;             // 1 nm steps
-    let stabilization_time_ms = 3000; // 3s stabilization delay
+    let step_nm = 5.0;             // 1 nm steps
+    let stabilization_time_ms = 10000; // 3s stabilization delay
     let wavelength = 1560.00; // example
     
-    cld1015_osa::run_current_sweep(&mut cld1015, &mut osa, start_ma, stop_ma, step_ma, dwell_time_ms)?;
+    //cld1015_osa::run_current_sweep(&mut cld1015, &mut osa, start_ma, stop_ma, step_ma, dwell_time_ms)?;
     //n77_wavelength_check::run_wavelength_check(&mut n77, &mut power_meter, wavelength, stabilization_time_ms)?;
-    //n77_wavelength_sweep::run_wavelength_sweep(&mut n77, &mut power_meter, start_nm, stop_nm, step_nm, stabilization_time_ms)?;
+    n77_wavelength_sweep::run_wavelength_sweep(&mut n77, &mut power_meter, start_nm, stop_nm, step_nm, stabilization_time_ms)?;
     //n77_osa::run_wavelength_sweep_osa(&mut n77, &mut osa, start_nm, stop_nm, step_nm, stabilization_time_ms)?;
     
     Ok(())

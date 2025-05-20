@@ -55,7 +55,7 @@ pub fn run_wavelength_check(
     println!("Set wavelength to {:.2} nm", wavelength);
         
     // Wait for stabilization
-    thread::sleep(Duration::from_millis(100));
+    thread::sleep(Duration::from_millis(150));
         
     // Measure power
     power_meter.write_all(b"READ? 0\n").map_err(io_to_vs_err)?; // from module 0

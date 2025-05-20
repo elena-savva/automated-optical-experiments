@@ -58,9 +58,23 @@ pub fn run_wavelength_sweep_osa(
     // Turn laser ON
     laser.write_all(b":SOURce2:POWer:STATe 1\n").map_err(io_to_vs_err)?;
     println!("Laser turned ON");
+
+    let cmd = format!(":SOURce2:WAVelength:CW {:.3}NM\n", 1530.00);
+    laser.write_all(cmd.as_bytes()).map_err(io_to_vs_err)?;
     
     // Wait for initial stabilization
     thread::sleep(Duration::from_millis(stabilization_time_ms));
+
+    // Trigger a new sweep on the OSA and confirm it's done before proceeding
+        osa.write_all(b"TS;DONE?;\n").map_err(io_to_vs_err)?; // Take sweep
+        let mut done_resp = String::new();
+        {
+            let mut reader = BufReader::new(&*osa);
+            reader.read_line(&mut done_resp).map_err(io_to_vs_err)?;
+        }
+        if done_resp.trim() != "1" {
+            println!("Warning: Sweep not confirmed complete. Response: {}", done_resp.trim());
+        }
     
     // Perform the sweep
     for i in 0..num_points {
@@ -79,7 +93,7 @@ pub fn run_wavelength_sweep_osa(
         laser.write_all(cmd.as_bytes()).map_err(io_to_vs_err)?;
 
         // Wait for stabilization
-        thread::sleep(Duration::from_millis(100));
+        thread::sleep(Duration::from_millis(stabilization_time_ms));
         
         // Trigger a new sweep on the OSA and confirm it's done before proceeding
         osa.write_all(b"TS;DONE?;\n").map_err(io_to_vs_err)?; // Take sweep
@@ -136,7 +150,7 @@ pub fn run_wavelength_sweep_osa(
         let wavelength_step = (stop_wl - start_wl) / (num_trace_points as f64 - 1.0);
         
         // Create trace data file
-        let trace_filename = format!("{}/trace_{:.2}mA.csv", trace_dir, wavelength);
+        let trace_filename = format!("{}/trace_{:.2}nm.csv", trace_dir, wavelength);
         let mut trace_file = File::create(&trace_filename).unwrap_or_else(|e| {
             println!("Warning: Failed to create trace file {}: {}", trace_filename, e);
             File::create("trace_data_fallback.csv").unwrap()
